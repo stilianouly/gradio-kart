@@ -25,7 +25,13 @@
     var kartX = (canvas.width)/2;
     var kartY = (canvas.height)/2;
 
-    var kartDirection = vec3.create(0,-1,0);
+    var kartPosition = vec2.create();
+    vec2.set(kartPosition, (canvas.width)/2, (canvas.height)/2);
+
+    var kartVelocity = vec2.create();
+
+    var kartDirection = vec2.create();
+    vec2.set(kartDirection, 0, -1);
 
     var rightPressed = false;
     var leftPressed = false;
@@ -108,7 +114,7 @@
     }
     function drawPaddle() {
         ctx.beginPath();
-        ctx.rect(kartX, kartY, paddleWidth, paddleHeight);
+        ctx.rect(kartPosition[0], kartPosition[1], 10, 10);
         ctx.fillStyle = "#0095DD";
         ctx.fill();
         ctx.closePath();
@@ -141,13 +147,23 @@
         ctx.fillText("Lives: "+lives, canvas.width-65, 20);
     }
 
+    function vec2Rotate(vecRot, deg)
+    {
+        var xi = vecRot[0];
+        var yi = vecRot[1];
+        var xp = xi*Math.cos(deg) - yi*Math.sin(deg);
+        var yp = xi*Math.sin(deg) + yi*Math.cos(deg);
+
+        vec2.set(vecRot, xp, yp);
+    }
+
     function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        drawBricks();
-        drawBall();
+        //drawBricks();
+        //drawBall();
         drawPaddle();
-        drawScore();
-        drawLives();
+        //drawScore();
+        //drawLives();
         collisionDetection();
 
         if(x + dx > canvas.width-ballRadius || x + dx < ballRadius) {
@@ -161,16 +177,16 @@
         }
 
         if(rightPressed) {
-            kartX += 7;
+            vec2Rotate(kartDirection, 0.03);
         }
         if(leftPressed) {
-            kartX -= 7;
+            vec2Rotate(kartDirection, -0.03);
         }
         if(upPressed) {
-            kartY -= 7;
+            vec2.add(kartPosition, kartPosition, kartDirection);
         }
         if(downPressed) {
-            kartY += 7;
+            vec2.subtract(kartPosition, kartPosition, kartDirection);
         }
 
         x += dx;
