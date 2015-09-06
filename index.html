@@ -4,11 +4,13 @@
     <meta charset="utf-8" />
     <title>Gradio Kart</title>
     <style>* { padding: 0; margin: 0; } canvas { background: #eee; display: block; margin: 0 auto; }</style>
+
 </head>
 <body>
 
 <canvas id="myCanvas" width="480" height="320"></canvas>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.3.1/gl-matrix-min.js"></script>
 <script>
     var canvas = document.getElementById("myCanvas");
     var ctx = canvas.getContext("2d");
@@ -19,9 +21,16 @@
     var dy = -2;
     var paddleHeight = 10;
     var paddleWidth = 75;
-    var paddleX = (canvas.width-paddleWidth)/2;
+    var kartRadius = 10;
+    var kartX = (canvas.width)/2;
+    var kartY = (canvas.height)/2;
+
+    var kartDirection = vec3.create(0,-1,0);
+
     var rightPressed = false;
     var leftPressed = false;
+    var upPressed = false;
+    var downPressed = false;
     var brickRowCount = 5;
     var brickColumnCount = 3;
     var brickWidth = 75;
@@ -47,22 +56,29 @@
         if(e.keyCode == 39) {
             rightPressed = true;
         }
-        else if(e.keyCode == 37) {
+        if(e.keyCode == 37) {
             leftPressed = true;
         }
-        if(e.keyCode == 38 {
+        if(e.keyCode == 38) {
             upPressed = true;
+        }
+        if(e.keyCode == 40) {
+            downPressed = true;
         }
       }
     function keyUpHandler(e) {
         if(e.keyCode == 39) {
             rightPressed = false;
         }
-        else if(e.keyCode == 37) {
+        if(e.keyCode == 37) {
             leftPressed = false;
         }
-        else if(e.keyCode == 38) {
+        if(e.keyCode == 38) {
             upPressed = false;
+        }
+        if(e.keyCode == 40) {
+            downPressed = false;
+        }
     }
     function collisionDetection() {
         for(c=0; c<brickColumnCount; c++) {
@@ -92,7 +108,7 @@
     }
     function drawPaddle() {
         ctx.beginPath();
-        ctx.rect(paddleX, canvas.height-paddleHeight, paddleWidth, paddleHeight);
+        ctx.rect(kartX, kartY, paddleWidth, paddleHeight);
         ctx.fillStyle = "#0095DD";
         ctx.fill();
         ctx.closePath();
@@ -141,30 +157,20 @@
             dy = -dy;
         }
         else if(y + dy > canvas.height-ballRadius) {
-            if(x > paddleX && x < paddleX + paddleWidth) {
-                dy = -dy;
-            }
-            else {
-                lives--;
-                if(!lives) {
-                    alert("GAME OVER");
-                    document.location.reload();
-                }
-                else {
-                    x = canvas.width/2;
-                    y = canvas.height-30;
-                    dx = 3;
-                    dy = -3;
-                    paddleX = (canvas.width-paddleWidth)/2;
-                }
-            }
+           
         }
 
-        if(rightPressed && paddleX < canvas.width-paddleWidth) {
-            paddleX += 7;
+        if(rightPressed) {
+            kartX += 7;
         }
-        else if(leftPressed && paddleX > 0) {
-            paddleX -= 7;
+        if(leftPressed) {
+            kartX -= 7;
+        }
+        if(upPressed) {
+            kartY -= 7;
+        }
+        if(downPressed) {
+            kartY += 7;
         }
 
         x += dx;
